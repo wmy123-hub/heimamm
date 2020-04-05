@@ -1,8 +1,5 @@
 <template>
-    <div>
-      <el-button type="primary" round>主要按钮</el-button>
-      <!-- 设置路由出口 -->
-      <router-link to="/show">跳转</router-link>
+    <div class="app">
       <router-view></router-view>
     </div>
 </template>
@@ -13,6 +10,7 @@ export default {
 }
 </script>
 
-<style>
-
+<style lang="less">
+// 在脚手架中使用less-----lang="less"
+@import url('~@/style/base.css');
 </style>
