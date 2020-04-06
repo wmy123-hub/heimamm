@@ -47,7 +47,7 @@
         <el-form-item>
           <el-button type="primary" class="btn" @click="loginClick">登录</el-button>
           <br>
-          <el-button type="primary" class="btn">注册</el-button>
+          <el-button type="primary" class="btn" @click="registerClick">注册</el-button>
         </el-form-item>
       </el-form>
       <!-- 栅格系统 elementUI一行有24栏，el-row行；el-col列 -->
@@ -55,12 +55,20 @@
     <div class="right">
       <img src="@/assets/login_banner_ele.png" alt />
     </div>
+    <!-- 注册子组件 -->
+    <register ref="register"></register>
+
   </div>
 </template>
 
 <script>
+// 导入注册组件
+import register from './register.vue'
 export default {
   name: "login",
+  components:{
+    register,
+  },
   data() {
     return {
       // 表单的双向绑定
@@ -100,6 +108,10 @@ export default {
           return false;
         }
       })
+    },
+    // 注册
+    registerClick(){
+      this.$refs.register.dialogFormVisible = true;
     }
   },
 };
