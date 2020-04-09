@@ -1,11 +1,11 @@
 // 1.保存token
-function saveToken(name="token",value){
-    window.localStorage.setItem(name,value);
+function saveToken(value){
+    window.localStorage.setItem("token",value);
 }
 
 // 2.获取token
 function getToken(name="token"){
-    window.localStorage.getItem(name);
+    return window.localStorage.getItem(name);
 }
 
 // 删除token

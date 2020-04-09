@@ -126,8 +126,9 @@ export default {
           login(this.form).then(res=>{
             console.log(res);
             this.$message.success('登录成功');
+
             // 保存token
-            saveToken("token",res.data.token);
+            saveToken(res.data.token);
           })
         }else{
           console.log('err sublit');

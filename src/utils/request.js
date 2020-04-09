@@ -1,6 +1,8 @@
 // 接口
 import axios from 'axios'
 
+import {getToken} from '@/utils/token.js'
+
 // 单独引用message
 import { Message } from 'element-ui';
 
@@ -14,6 +16,11 @@ const instance = axios.create({
 // 添加请求拦截器
 instance.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
+  // 有token加上请求头
+  // console.log('请求拦截的' ,config);
+  if(getToken()){
+    config.headers.token = getToken()
+  }
   return config;
 }, function (error) {
   // 对请求错误做些什么
