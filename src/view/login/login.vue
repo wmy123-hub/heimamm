@@ -32,12 +32,12 @@
               ></el-input>
             </el-col>
             <el-col :span="6">
-              <img src="@/assets/key.png" alt="" class="key">
+              <img :src="codeUrl" alt="" class="key" @click="changeLoginCode">
             </el-col>
           </el-row>
         </el-form-item>
         <!-- 复选框：协议 -->
-        <el-form-item>
+        <el-form-item prop="isCheck">
           <el-checkbox v-model="form.isCheck">我已阅读并同意
             <el-link type="primary">用户协议</el-link>和
             <el-link type="primary">隐私条款</el-link>
@@ -64,6 +64,8 @@
 <script>
 // 导入注册组件
 import register from './register.vue'
+import {login} from '@/api/login.js'
+import {saveToken} from '@/utils/token.js'
 export default {
   name: "login",
   components:{
@@ -78,9 +80,18 @@ export default {
         code:"",   //验证码
         isCheck:'',  //是否同意协议
       },
+      codeUrl:process.env.VUE_APP_URL + '/captcha?type=login',   //登录验证码
       rules:{
         phone:[
           { required:true,message:'请输入手机号',trigger:'blur'},
+          {validator:(rule,value,callback)=>{
+            let reg = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/;
+            if(reg.test(value)){
+              callback();
+            }else{
+              callback('请输入正确的手机号码')
+            }
+          }}
         ],
         password:[
           { required:true,message:'请输入密码',trigger:'blur'},
@@ -89,7 +100,20 @@ export default {
         code:[
           { required:true,message:'请输入验证码',trigger:'blur'},
           { min:4,max:4,message:'请正确输入验证码',trigger:'blur'}
-        ]
+        ],
+        isCheck: [
+          { required: true, message: "请勾选协议", trigger: "change" },
+          {
+            validator: (rule, value, callback) => {
+              if (value === true) {
+                callback();
+              } else {
+                callback("请勾选协议");
+              }
+            },
+            trigger: "change"
+          }
+        ],
       }
     };
   },
@@ -98,11 +122,13 @@ export default {
     loginClick(){
       this.$refs.form.validate(result=>{
         if(result){
-          this.$message({
-          message: '恭喜你，验证成功',
-          type: 'success',
-          showClose:true,
-        });
+          // 调用登录接口
+          login(this.form).then(res=>{
+            console.log(res);
+            this.$message.success('登录成功');
+            // 保存token
+            saveToken("token",res.data.token);
+          })
         }else{
           console.log('err sublit');
           return false;
@@ -112,6 +138,10 @@ export default {
     // 注册
     registerClick(){
       this.$refs.register.dialogFormVisible = true;
+    },
+    // 点击验证码切换
+    changeLoginCode(){
+      this.codeUrl = process.env.VUE_APP_URL + '/captcha?type=login&code=' + Date.now();
     }
   },
 };
