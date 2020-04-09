@@ -247,7 +247,9 @@ export default {
  watch: {
    'dialogFormVisible'(newValue){
      if(newValue == false){
+      //  清空表单
        this.$refs.form.resetFields();
+      //  将图片置空
        this.imageUrl = '';
      }
    }
