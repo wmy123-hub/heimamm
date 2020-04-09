@@ -55,25 +55,26 @@
             <el-input v-model="form.rcode"></el-input>
           </el-col>
           <el-col :span="7" :offset="1">
-            <el-button @click="getRcode">获取用户验证码</el-button>
+            <el-button @click="getRcode" :disabled="totalTime != 60">获取用户验证码 <span v-if="totalTime != 60">{{totalTime}}</span></el-button>
           </el-col>
         </el-row>
       </el-form-item>
     </el-form>
     <!-- footer -->
     <div slot="footer">
-      <el-button>取消</el-button>
+      <el-button @click="dialogFormVisible = false">取消</el-button>
       <el-button type="primary" @click="submitClick">确定</el-button>
     </div>
   </el-dialog>
 </template>
 
 <script>
-import getPhoneCode from '@/api/register.js';
+import {getPhoneCode,register} from '@/api/register.js';
 export default {
   data() {
     return {
       dialogFormVisible: false,
+      totalTime:60,    // 获取短信验证码后倒计时
       form: {
         avatar: "", //将注册接口的头像地址保存
         username:'',  //昵称
@@ -168,7 +169,12 @@ export default {
     submitClick() {
       this.$refs.form.validate(result => {
         if (result) {
-          alert("注册成功");
+          // 调用注册接口
+          register(this.form).then(res=>{
+            console.log(res);
+              this.$message.success('恭喜，注册成功');
+              this.dialogFormVisible = false;
+          })
         } else {
           console.log("error submit");
           return false;
@@ -210,18 +216,42 @@ export default {
         //     withCredentials:true   //跨域照样携带cookie
         //   },
         // })
-        
+        // 点击获取验证码 调用接口前进行倒计时
+        this.totalTime--;
+        let timer = setInterval(()=>{
+          this.totalTime--;
+          if(this.totalTime <= 0){
+            // 清除定时器
+            clearInterval(timer);
+            this.totalTime=60;
+          }
+        },1000)
         getPhoneCode({
           code:this.form.code,
           phone:this.form.phone
         }).then(res=>{
           //成功回调
           // console.log(res);
-          this.$message.success('获取的验证码：'+res.data.data.captcha);
+          this.$message.success('获取的验证码：'+res.data.captcha);
         });
       }
     }
-  }
+  },
+
+  // 关闭页面时，清空表单数据
+  /* 
+  侦听器：对某个值进行监听，如果该值改变了，可以对它进行一些相应的处理
+  侦听器本质是一个function(newValue,oldValue){}
+  newValue当前值，oldValue修改前一刻的值
+  */
+ watch: {
+   'dialogFormVisible'(newValue){
+     if(newValue == false){
+       this.$refs.form.resetFields();
+       this.imageUrl = '';
+     }
+   }
+ },
 };
 </script>
 
