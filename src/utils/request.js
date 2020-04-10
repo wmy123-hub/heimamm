@@ -1,10 +1,13 @@
 // 接口
 import axios from 'axios'
 
-import {getToken} from '@/utils/token.js'
+import {getToken,removeToken} from '@/utils/token.js'
 
 // 单独引用message
 import { Message } from 'element-ui';
+
+// 导入router
+import router from '@/router/router.js'
 
 // 创建axios副本
 const instance = axios.create({
@@ -32,6 +35,15 @@ instance.interceptors.response.use(function (response) {
   if(response.data.code == 200){
     // 因为axios多包了一层data,所以架构师直接手动干掉
     return response.data;
+  }else if(response.data.code == 206){
+    // 优化全局响应拦截token参数错误
+    Message.error(response.data.message);
+    // 跳转至登录页
+    router.push('/');
+    // 清除掉token
+    removeToken();
+    // 抛出错误，打断运行
+    return Promise.reject("error");
   }else{
     Message.error(response.data.message);
     // 只要return了一个Promise.reject(error)，后面的接口的then就不会执行了

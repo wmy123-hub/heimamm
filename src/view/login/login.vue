@@ -65,7 +65,7 @@
 // 导入注册组件
 import register from './register.vue'
 import {login} from '@/api/login.js'
-import {saveToken} from '@/utils/token.js'
+import {saveToken,getToken} from '@/utils/token.js'
 export default {
   name: "login",
   components:{
@@ -117,6 +117,13 @@ export default {
       }
     };
   },
+  created() {
+    if(getToken()){
+      // 如果有token值，则跳转到首页
+      // 在vue文件不需要导入router，只需要在js文件导入router
+      this.$router.push('/home');
+    }
+  },
   methods: {
     // 登录
     loginClick(){
@@ -129,6 +136,8 @@ export default {
 
             // 保存token
             saveToken(res.data.token);
+            // 跳转到首页
+            this.$router.push('/home');
           })
         }else{
           console.log('err sublit');
