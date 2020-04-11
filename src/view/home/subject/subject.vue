@@ -1,5 +1,6 @@
 <template>
-    <div>学科列表</div>
+    <div>学科列表
+    </div>
 </template>
 
 <script>

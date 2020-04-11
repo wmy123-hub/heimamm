@@ -7,8 +7,8 @@
         <span class="title">黑马面面</span>
       </div>
       <div class="right">
-        <img class="avatar" :src="userInfo.avatar" alt />
-        <span class="name">{{userInfo.username}}，您好</span>
+        <img class="avatar" :src="$store.state.userInfo.avatar" alt />
+        <span class="name">{{$store.state.userInfo.username}}，您好</span>
         <el-button type="primary" @click="exit">退出</el-button>
       </div>
     </el-header>
@@ -62,6 +62,9 @@ export default {
   },
 
   created() {
+    // 调用路由元信息修改网页标题
+    document.title = this.$route.meta.title;
+
     // console.log(this.$route);
     // 进行token判断
     // 如果没有token，则跳至登录页
@@ -72,6 +75,7 @@ export default {
       // console.log(res);
       this.userInfo = res.data;
       this.userInfo.avatar = process.env.VUE_APP_URL + "/" + res.data.avatar;
+      this.$store.state.userInfo = this.userInfo;
     });
   },
   methods: {
