@@ -62,14 +62,12 @@ export default {
   },
 
   created() {
-    // 调用路由元信息修改网页标题
-    document.title = this.$route.meta.title;
-
     // console.log(this.$route);
     // 进行token判断
     // 如果没有token，则跳至登录页
     if(!getToken()){
       this.$router.push('/');
+      return;
     }
     getUserInfo().then(res => {
       // console.log(res);
@@ -145,6 +143,9 @@ export default {
     .menuTransition:not(.el-menu--collapse){
       width:160px;
     }
+  }
+  .main{
+    background-color: #E8E9EC;
   }
 }
 </style>
