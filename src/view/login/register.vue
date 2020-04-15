@@ -107,7 +107,7 @@ export default {
               // 提示错误消息
               callback('请正确输入邮箱地址');
             }
-          }}
+          },trigger:'change'}
         ],
         phone:[
           { required:true,message:'请输入你的手机号',trigger:'change'},
@@ -120,7 +120,7 @@ export default {
               // 提示错误消息
               callback('请正确输入手机号');
             }
-          }}
+          },trigger:'change'}
         ],
         password:[
           { required:true,message:'请输入密码',trigger:'change'},
