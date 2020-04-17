@@ -20,10 +20,11 @@ const router = new VueRouter({
   routes: [{
       path: '/',
       component: login,
-      meta:{
+      meta: {
         // 路由元信息
-        title:'登录',
-        auto:'也可以自己定义'
+        title: '登录',
+        auto: '也可以自己定义',
+        rules: ["超级管理员", "管理员", "老师", "学生"],
       }
     },
     {
@@ -34,37 +35,47 @@ const router = new VueRouter({
       children: [{
           path: 'chart', //相对路径，不要加/
           component: chart,
-          meta:{
-            title:'数据概览'
+          meta: {
+            title: '数据概览',
+            rules: ["超级管理员", "管理员", "老师"],
+            icon:"el-icon-pie-chart",
           }
         },
         {
           path: 'userList', //相对路径，不要加/
           component: userList,
-          meta:{
-            title:'用户列表'
+          meta: {
+            title: '用户列表',
+            rules: ["超级管理员", "管理员"],
+            icon:"el-icon-user-solid",
           }
         },
         {
           path: 'question', //相对路径，不要加/
           component: question,
-          meta:{
-            title:'题库列表'
+          meta: {
+            title: '题库列表',
+            rules: ["超级管理员", "管理员", "老师"],
+            icon:"el-icon-edit-outline",
           }
         },
         {
           path: 'business', //相对路径，不要加/
           component: business,
-          meta:{
-            title:'企业列表'
+          meta: {
+            title: '企业列表',
+            rules: ["超级管理员", "管理员", "老师"],
+            icon:"el-icon-office-building",
           }
         },
         {
           path: 'subject', //相对路径，不要加/
           component: subject,
           // 路由元信息
-          meta:{
-            title:'学科列表',
+          meta: {
+            title: '学科列表',
+            rules: ["超级管理员", "管理员", "老师", "学生"],
+            icon:"el-icon-notebook-2",
           }
         },
       ]
@@ -100,19 +111,35 @@ const router = new VueRouter({
 import NProgress from 'nprogress'
 // 导入他的样式
 import 'nprogress/nprogress.css'
+
+import store from '@/store/index.js'
+import {Message} from 'element-ui'
+import {removeToken} from '@/utils/token.js'
 /* 
 1. 导航守卫 `beforeEach`  开启    `Nprogress.start()`
 2. 导航守卫`afterEach `  关闭即可  `Nprogress.done()`
  */
 router.beforeEach((to, from, next) => {
   NProgress.start();
-  next();
+
+  if(to.meta.rules.includes(store.state.role)){
+    next();
+  }else{
+    // 弹出错误提示
+    Message.warning('您无权访问此页面');
+    // 删除token
+    removeToken();
+    // 跳转到登录页
+    next("/");
+
+  }
+ 
 });
 
 router.afterEach((to) => {
   NProgress.done();
   // 调用路由元信息修改网页标题
-  document.title = to.meta.title;      //to就相当于是$route的信息
+  document.title = to.meta.title; //to就相当于是$route的信息
 })
 
 // 输出

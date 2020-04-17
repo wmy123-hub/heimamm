@@ -10,9 +10,7 @@
         </el-form-item>
         <el-form-item label="角色" prop="role_id" class="margin">
           <el-select placeholder="请选择状态" v-model="form.role_id">
-            <el-option label="管理员" value="2"></el-option>
-            <el-option label="老师" value="3"></el-option>
-            <el-option label="学生" value="4"></el-option>
+            <el-option v-for="(item,key, index) in $store.state.roleObj" :key="index" :label="item" :value="key"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item class="margin">
@@ -35,7 +33,8 @@
         <el-table-column label="邮箱" prop="email"></el-table-column>
         <el-table-column label="角色">
           <template slot-scope="scope">
-            <span v-if="scope.row.role_id==2">管理员</span>
+            <span v-if="scope.row.role_id==1">超级管理员</span>
+            <span v-else-if="scope.row.role_id==2">管理员</span>
             <span v-else-if="scope.row.role_id==3">老师</span>
             <span v-else>学生</span>
           </template>
@@ -122,7 +121,7 @@ export default {
         ...this.form
       };
       getUserData(_params).then(res => {
-        console.log(res);
+        console.log("用户列表",res);
         this.tableData = res.data.items;
         this.pagination.total = res.data.pagination.total;
       });

@@ -1,6 +1,6 @@
 <template>
   <el-dialog class="addUserlist" :visible.sync="dialogFormVisible" width="477px">
-    <div slot="title" class="title">新增用户</div>
+    <div slot="title" class="title">{{mode=="add"?'新增用户':'编辑用户'}}</div>
 
     <el-form :model="form" :rules="rules" ref="form" label-width="100px">
       <el-form-item label="用户名" prop="username">
@@ -14,15 +14,14 @@
       </el-form-item>
       <el-form-item label="角色" prop="role_id">
         <el-select v-model="form.role_id" placeholder="请选择角色">
-          <el-option label="管理员" value="2"></el-option>
-          <el-option label="老师" value="3"></el-option>
-          <el-option label="学生" value="4"></el-option>
+          <!-- :value="+key"   将key转为数值类型 -->
+          <el-option v-for="(item,key, index) in $store.state.roleObj" :key="index" :value="+key" :label="item"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="状态" prop="status">
         <el-select v-model="form.status" placeholder="请选择状态">
-          <el-option label="禁用" value="0"></el-option>
-          <el-option label="启用" value="1"></el-option>
+          <el-option label="禁用" :value="0"></el-option>
+          <el-option label="启用" :value="1"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="用户备注" prop="remark">
@@ -111,7 +110,7 @@ export default {
             editUserData(this.form).then(() => {
               this.$message.success("编辑用户成功");
               this.dialogFormVisible = false;
-              this.$parent.searchUserlist();
+              this.$parent.getData();
             });
           }
         }
@@ -124,6 +123,7 @@ export default {
       if (newValue == false) {
         this.$refs.form.resetFields();
       }else{
+        // 打开弹窗时，form表单还没有渲染出来，所以要做延时处理---$nextTick
           this.$nextTick(()=>{
             this.$refs.form.clearValidate();
         })

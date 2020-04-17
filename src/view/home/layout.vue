@@ -16,12 +16,22 @@
       <!-- 注意点：我们得设置el-aside的宽度为auto，不能写死，不然就没有适配效果 -->
       <el-aside width="auto" class="aside">
         <!-- $route.fullPath--获取当前页面路径 -->
-        <el-menu :default-active="$route.fullPath" :collapse='collapse' class="menuTransition" :router="true">
+        <el-menu
+          :default-active="$route.fullPath"
+          :collapse="collapse"
+          class="menuTransition"
+          :router="true"
+        >
           <!-- collapse控制菜单是否折叠
           加上它，它就会在el-menu上产生一个class  el-menu--collapse
-          然后为了实现动画效果，我们得给一个初始宽度，因为默认是没设置宽度的
-           -->
-          <el-menu-item index="/home/chart">
+          然后为了实现动画效果，我们得给一个初始宽度，因为默认是没设置宽度的         
+          -->
+          <!-- v-if和v-for不能一起使用 -->
+          <el-menu-item :index="'/home/'+item.path" v-for="(item, index) in $router.options.routes[1].children" :key="index" v-show="item.meta.rules.includes($store.state.role)">
+            <i :class="item.meta.icon"></i>
+            <span slot="title">{{item.meta.title}}</span>
+          </el-menu-item>
+          <!-- <el-menu-item index="/home/chart">
             <i class="el-icon-pie-chart"></i>
             <span slot="title">数据概览</span>
           </el-menu-item>
@@ -40,7 +50,7 @@
           <el-menu-item index="/home/subject">
             <i class="el-icon-notebook-2"></i>
             <span slot="title">学科列表</span>
-          </el-menu-item>
+          </el-menu-item>-->
         </el-menu>
       </el-aside>
       <el-main class="main">
@@ -52,28 +62,50 @@
 
 <script>
 import { getUserInfo, logout } from "@/api/home.js";
-import { removeToken,getToken } from "@/utils/token.js";
+import { removeToken, getToken } from "@/utils/token.js";
 export default {
   data() {
     return {
       userInfo: "",
-      collapse:false,   //控制菜单是否折叠
+      collapse: false //控制菜单是否折叠
     };
   },
 
   created() {
-    // console.log(this.$route);
+    console.log("路由信息",this.$router);
     // 进行token判断
     // 如果没有token，则跳至登录页
-    if(!getToken()){
-      this.$router.push('/');
+    if (!getToken()) {
+      this.$router.push("/");
       return;
     }
+    // 获取用户信息
     getUserInfo().then(res => {
-      // console.log(res);
+      console.log("用户信息", res);
       this.userInfo = res.data;
       this.userInfo.avatar = process.env.VUE_APP_URL + "/" + res.data.avatar;
       this.$store.state.userInfo = this.userInfo;
+      // 将真实的角色传递给共享数据管理的$store.state.role
+      this.$store.state.role = res.data.role;
+
+      // 如果用户信息的状态是被禁用了，则
+      if (res.data.status == 0) {
+        this.$message.warning("您的账号已被禁用，请联系管理员");
+        // 删除token
+        removeToken();
+        // 调至登录页
+        this.$router.push("/");
+      } else {
+        // 判断路由元信息的访问角色是否有权限，
+        if (!this.$route.meta.rules.includes(res.data.role)) {
+          this.$message.warning("您无权访问该页面");
+          // 删除token
+          removeToken();
+          // 调至登录页
+          this.$router.push("/");
+          // 因为created的生命周期只能执行一次，所以应该在导航守卫beforeEach中判断
+        }
+      }
     });
   },
   methods: {
@@ -140,12 +172,12 @@ export default {
     background: rgba(255, 255, 255, 1);
     box-shadow: 0px 2px 5px 0px rgba(63, 63, 63, 0.35);
 
-    .menuTransition:not(.el-menu--collapse){
-      width:160px;
+    .menuTransition:not(.el-menu--collapse) {
+      width: 160px;
     }
   }
-  .main{
-    background-color: #E8E9EC;
+  .main {
+    background-color: #e8e9ec;
   }
 }
 </style>
